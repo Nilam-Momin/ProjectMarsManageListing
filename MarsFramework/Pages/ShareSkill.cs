@@ -138,7 +138,8 @@ namespace MarsFramework.Pages
             //select skill trade
             SelectSkillTrade();
 
-            fileupload();
+            //upload file using autoit
+            //fileupload();
 
             //select active/hidden
             SelectActive();
@@ -164,7 +165,11 @@ namespace MarsFramework.Pages
             autoIt.WinWait("Open", "File Upload", 1);
             autoIt.WinActivate("Open", "File Upload");
             autoIt.ControlFocus("Open", "File Upload", "[CLASS:Edit; INSTANCE:1]");
-            autoIt.Send(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..")) + "\\marsframework\\Text.txt");
+
+            //autoIt.Send(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..")) + "\\Text.txt");
+            //Workaround: Copy Text.txt file from root folder to C:\
+            autoIt.Send("C:\\Users\\OEM\\Desktop\\WorkSample.txt");
+            
             autoIt.Sleep(1000);
             autoIt.Send("{ENTER}");           
         }
