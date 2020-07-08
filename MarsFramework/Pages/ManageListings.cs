@@ -68,11 +68,13 @@ namespace MarsFramework.Pages
             delete.Click();// delete.Click();
 
             BtnYes.Click();//confirm delete
-            GlobalDefinitions.wait(3000);
+            GlobalDefinitions.wait(300);
             //text of popup
             Console.WriteLine(Popup.Text);
+           
             try
             {   //validates the delete listing
+               
                 Assert.AreEqual("Selenium has been deleted", Popup.Text);
             }
             catch (Exception ex)
