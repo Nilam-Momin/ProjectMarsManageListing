@@ -1,4 +1,4 @@
-﻿using MarsFramework.Global;
+﻿using MarsFramework.Base;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Internal;
@@ -10,17 +10,22 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using MarsFramework.Helper;
 
 namespace MarsFramework.Pages
 {
     internal class ManageListings
     {
-        public ManageListings()
+        private IWebDriver driver;
+
+        public ManageListings(IWebDriver driver)
         {
+            this.driver = driver;
             //Populate the Excel Sheet
-            // GlobalDefinitions.ExcelLib.PopulateInCollection(Base.ExcelPath, "ManageListings");
-            PageFactory.InitElements(Global.GlobalDefinitions.driver, this);
+            GlobalDefinitions.ExcelLib.PopulateInCollection(paths.ExcelPath, "ShareSkill");
+            PageFactory.InitElements(driver, this);
         }
+
         #region "Web Elements"
         //Click on Manage Listings Link
         [FindsBy(How = How.LinkText, Using = "Manage Listings")]
@@ -62,7 +67,7 @@ namespace MarsFramework.Pages
         }
 
         //delete listing
-        internal void DeleteListing()
+        internal string DeleteListing()
         {
             
             delete.Click();// delete.Click();
@@ -71,23 +76,14 @@ namespace MarsFramework.Pages
             GlobalDefinitions.wait(300);
             //text of popup
             Console.WriteLine(Popup.Text);
-           
-            try
-            {   //validates the delete listing
-               
-                Assert.AreEqual("Selenium has been deleted", Popup.Text);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+            return Popup.Text;
+                     
         }
 
         //validates listing
         internal void FindListing()
         {
-            var table = GlobalDefinitions.driver.FindElement(By.XPath("//table/tbody"));//table body
+            var table = driver.FindElement(By.XPath("//table/tbody"));//table body
             var rows = table.FindElements(By.TagName("tr")); //all the table rows
 
             try

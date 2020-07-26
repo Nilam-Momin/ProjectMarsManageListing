@@ -1,25 +1,29 @@
-﻿using MarsFramework.Global;
+﻿using MarsFramework.Base;
+using MarsFramework.Helper;
 using OpenQA.Selenium;
 using SeleniumExtras.PageObjects;
 
 namespace MarsFramework.Pages
 {
    public class SignIn
-    {
+   {
        
-        public SignIn()
+        public SignIn(IWebDriver driver)
         {
 
+            this.driver = driver;
             //Populate the excel data
-            GlobalDefinitions.ExcelLib.PopulateInCollection(Base.ExcelPath, "SignIn");
+            GlobalDefinitions.ExcelLib.PopulateInCollection(paths.ExcelPath, "Profile");
             username = GlobalDefinitions.ExcelLib.ReadData(2, "Username");
-            password = GlobalDefinitions.ExcelLib.ReadData(2, "Password");
+            password = GlobalDefinitions.ExcelLib.ReadData(2, "CurrentPassword");
 
-            PageFactory.InitElements(Global.GlobalDefinitions.driver, this);
+            PageFactory.InitElements(driver, this);
         }
 
+       
         private string username;
         private string password;
+        private readonly IWebDriver driver;
 
         #region  Initialize Web Elements 
         //Finding the Sign Link

@@ -1,19 +1,29 @@
-﻿using MarsFramework.Global;
+﻿using MarsFramework.Base;
+using MarsFramework.Helper;
 using MarsFramework.Pages;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Internal;
+using OpenQA.Selenium.Support.UI;
 //using OpenQA.Selenium.Support.PageObjects;
 using SeleniumExtras.PageObjects;
+using System;
+using System.Threading;
 
 namespace MarsFramework
 {
-    internal class Profile
+    public sealed class Profile
     {
+        private IWebDriver driver;
 
-        public Profile()
+        public Profile(IWebDriver _driver)
         {
-            PageFactory.InitElements(Global.GlobalDefinitions.driver, this);
+            driver = _driver;
+            PageFactory.InitElements(driver, this);
+            GlobalDefinitions.ExcelLib.PopulateInCollection(paths.ExcelPath, "Profile");
         }
+
+
 
         #region  Initialize Web Elements 
         //Click on Edit button
@@ -94,7 +104,7 @@ namespace MarsFramework
 
         //Add Skill
         [FindsBy(How = How.XPath, Using = "//*[@id='account-profileEdit-section']/div/section[2]/div/div/div/form/div[4]/div/div[2]/div/div/span/input[1]")]
-        private IWebElement AddSkill { get; set; }
+        private IWebElement BtnAddSkill { get; set; }
 
         //Click on Add new to Educaiton
         [FindsBy(How = How.XPath, Using = "//*[@id='account-profileEdit-section']/div/section[2]/div/div/div/form/div[5]/div/div[2]/div/table/thead/tr/th[6]/div")]
@@ -161,30 +171,81 @@ namespace MarsFramework
         private IWebElement AddCerti { get; set; }
 
         //Add Desctiption
-        [FindsBy(How = How.XPath, Using = "//*[@id='account-profileEdit-section']/div/section[2]/div/div/div/form/div[8]/div/div[2]/div[1]/textarea")]
-        private IWebElement Description { get; set; }
+        [FindsBy(How = How.XPath, Using = "//h3/span/i[@class='outline write icon']")]
+        private IWebElement btnUpdateDescription { get; set; }
+
+        //Description textbox
+        [FindsBy(How = How.CssSelector, Using = "textarea[name='value']")]
+        private IWebElement txtbxDescription { get; set; }
 
         //Click on Save Button
-        [FindsBy(How = How.XPath, Using = "//*[@id='account-profileEdit-section']/div/section[2]/div/div/div/form/div[8]/div/div[4]/span/button[1]")]
-        private IWebElement Save { get; set; }
+        [FindsBy(How = How.XPath, Using = "(//button[@class='ui teal button'])[2]")]
+        private IWebElement btnSaveDescription { get; set; }
 
         //click manage listing
-        [FindsBy(How=How.CssSelector, Using = "a[href='/Home/ListingManagement']")]
+        [FindsBy(How = How.CssSelector, Using = "a[href='/Home/ListingManagement']")]
         private IWebElement ManageListing { get; set; }
 
+        //Language tab
+        [FindsBy(How = How.XPath, Using = "//a[text()='Languages']")]
+        private IWebElement TabLanguage { get; set; }
+
+        //skill tab
+        [FindsBy(How = How.XPath, Using = "//a[text()='Skills']")]
+        private IWebElement TabSkill { get; set; }
+
+        //education tab
+        [FindsBy(How = How.XPath, Using = "//a[text()='Education']")]
+        private IWebElement TabEducation { get; set; }
+
+        //certification tab
+        [FindsBy(How = How.XPath, Using = "//a[text()='Certifications']")]
+        private IWebElement TabCertification { get; set; }
+
+        //popup message
+        [FindsBy(How = How.XPath, Using = "//div[contains(@class,'ns-box-inner')]")]
+        private IWebElement Popup { get; set; }
+
+        //Old password
+        [FindsBy(How = How.XPath, Using = "//input[@name='oldPassword']")]
+        //*[@id="listing-management-section"]/section[1]/div/a[3]
+        private IWebElement oldpassword { get; set; }
+        //new password
+        [FindsBy(How = How.XPath, Using = "//input[@name='newPassword']")]
+        //*[@id="listing-management-section"]/section[1]/div/a[3]
+        private IWebElement newpassword { get; set; }
+        //Confirm password
+        [FindsBy(How = How.XPath, Using = "//input[@name='confirmPassword']")]
+        //*[@id="listing-management-section"]/section[1]/div/a[3]
+        private IWebElement confirmpassword { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//button[@type='button' and text()='Save']")]
+        private IWebElement savebutton { get; set; }
+
+        //search skill text box homepage
+        [FindsBy(How = How.CssSelector, Using = "input[placeholder='Search skills']")]
+        private IWebElement txtbxSearchSkill { get; set; }
+
+        //search button
+        [FindsBy(How = How.XPath, Using = "(//i[@class='search link icon'])[1]")]
+        private IWebElement btnSearch { get; set; }
+
+        //Hi hello
+        [FindsBy(How = How.XPath, Using = "//*[@id='account-profile-section']/div/div[1]/div[2]/div/span")]
+        private IWebElement ddlHi { get; set; }
+
+        //change password
+        [FindsBy(How = How.XPath, Using = "//a[text()='Change Password']")]
+        private IWebElement btnChangePassword { get; set; }
         #endregion
 
-        internal void EditProfile()
-        {
-
-        }
 
         internal void GoToShareSkill()
         {
             GlobalDefinitions.wait(30);
             BtnShareSkill.Click();
 
-           
+
         }
 
         internal void GoToManageListing()
@@ -192,5 +253,145 @@ namespace MarsFramework
             GlobalDefinitions.wait(30);
             ManageListing.Click();
         }
+
+        //add availability type
+        public string AddAvailability(string availabilityType)
+        {
+            Base.GlobalDefinitions.wait(30);
+            //click on the pen icon to add availability
+            driver.FindElement(By.XPath("(//i[@class='right floated outline small write icon'])[1]")).Click();
+            if (availabilityType.ToLower() == "part time")
+            {
+                //Part Time availability
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyType')]"))).SelectByValue("0");
+                Console.WriteLine("avail type added");
+            }
+            else if (availabilityType.ToLower() == "full time")
+            {
+                //Full Time availability
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyType')]"))).SelectByValue("1");
+                Console.WriteLine("avail type added");
+            }
+            return Popup.Text;
+        }
+
+        //add availability hour
+        public string AddAvailabilityHour(string AvailabilityHour)
+        {
+            //wait
+            Base.GlobalDefinitions.wait(30);
+            //click on pen icon to add
+            driver.FindElement(By.XPath("(//i[contains(@class,'right floated outline small write icon')])[2]")).Click();
+
+            //check which parameter is passed and select that value from dropdown
+            if (AvailabilityHour.ToLower() == "less than 30 hours")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyHour')]"))).SelectByValue("0");
+            }
+
+            else if (AvailabilityHour.ToLower() == "more than 30 hours")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyHour')]"))).SelectByValue("1");
+            }
+            else if (AvailabilityHour.ToLower() == "as needed")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyHour')]"))).SelectByValue("2");
+            }
+
+            return Popup.Text;
+        }
+
+        //add earn target
+        public string AddEarnTarget(string EarnTarget)
+        {
+            //explicit wait
+            Base.GlobalDefinitions.wait(30);
+            //click pen icon to add value
+            driver.FindElement(By.XPath("(//i[@class='right floated outline small write icon'])[3]")).Click();
+            //select dropdown using the parameter passed
+            if (EarnTarget.ToLower() == "less than $500")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyTarget')]"))).SelectByValue("0");
+
+            }
+            else if (EarnTarget.ToLower() == "between $500 and $1000")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyTarget')]"))).SelectByValue("1");
+            }
+            else if (EarnTarget.ToLower() == "more than $1000")
+            {
+                new SelectElement(driver.FindElement(By.XPath("//select[contains(@name,'availabiltyTarget')]"))).SelectByValue("2");
+            }
+            return Popup.Text;
+        }
+
+        public string UpdateDescription()
+        {
+            GlobalDefinitions.wait(15);
+            btnUpdateDescription.Click();
+            GlobalDefinitions.wait(15);
+            txtbxDescription.Click();
+            txtbxDescription.Clear();
+            GlobalDefinitions.wait(15);
+            txtbxDescription.SendKeys(GlobalDefinitions.ExcelLib.ReadData(2, "Description"));
+            btnSaveDescription.Click();
+            Console.WriteLine(Popup.Text);
+            return Popup.Text;
+
+        }
+
+        internal void ChangePassword(string changePassword, string currentPassword)
+        {
+
+            GlobalDefinitions.wait(15);
+            // GlobalDefinitions.ExcelLib.PopulateInCollection(ConstantHelpers.TestDataPath, "FieldValues");
+            oldpassword.SendKeys(currentPassword);
+            newpassword.SendKeys(changePassword);
+            GlobalDefinitions.wait(15);
+            confirmpassword.SendKeys(changePassword);
+            // click on save button
+            savebutton.Click();
+            GlobalDefinitions.wait(15);
+            GlobalDefinitions.ExcelLib.WriteData(2, "oldPassword", changePassword, currentPassword);
+
+
+        }
+        // Validate password changed successfully
+        internal void ValidateChangedPassword()
+        {
+            string msg = driver.FindElement(By.XPath("//div[contains(@class,'ns-box-inner')]")).Text;
+            Console.WriteLine(msg);
+            Assert.AreEqual(msg, "Password Changed Successfully");
+        }
+
+        //Search skill
+        internal void SearchSkill()
+        {
+            GlobalDefinitions.WaitForElement(driver, By.CssSelector("input[placeholder='Search skills']"), 40);
+            txtbxSearchSkill.SendKeys("testing");
+            btnSearch.Click();
+        }
+
+        internal void GoToChangePassword()
+        {
+            try
+            {
+                Thread.Sleep(2000);
+                //GlobalDefinitions.WaitForElement(driver, By.CssSelector("span[class='item ui dropdown link active visible']"), 40);
+                //driver.FindElement(By.CssSelector("span[class='item ui dropdown link active visible']")).Click();
+                driver.FindElement(By.XPath("//span[contains(text(), 'Hi ')]")).Click();
+                // driver.FindElement(By.XPath("//span[contains(@tabindex,'0')]")).Click();
+                // ddlHi.Click();
+                //Thread.Sleep(1000);
+                GlobalDefinitions.WaitForClickableElement(driver,By.XPath("//a[text()='Change Password']"),30);
+                btnChangePassword.Click();
+
+
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    
     }
 }

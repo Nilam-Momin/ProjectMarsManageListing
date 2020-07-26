@@ -1,4 +1,5 @@
-﻿using MarsFramework.Global;
+﻿using MarsFramework.Base;
+using MarsFramework.Helper;
 using OpenQA.Selenium;
 using SeleniumExtras.PageObjects;
 
@@ -6,18 +7,21 @@ namespace MarsFramework.Pages
 {
     class SignUp
     {
-        public SignUp()
+     
+        public SignUp(IWebDriver driver)
         {
+            this.driver = driver;
             //Populate the excel data
-            GlobalDefinitions.ExcelLib.PopulateInCollection(Base.ExcelPath, "SignUp");
+            GlobalDefinitions.ExcelLib.PopulateInCollection(paths.ExcelPath, "SignUp");
             firstname = GlobalDefinitions.ExcelLib.ReadData(2, "FirstName");
             lastname = GlobalDefinitions.ExcelLib.ReadData(2, "LastName");
             email = GlobalDefinitions.ExcelLib.ReadData(2, "Email");
             password = GlobalDefinitions.ExcelLib.ReadData(2, "Password");
             confirmpassword = GlobalDefinitions.ExcelLib.ReadData(2, "ConfirmPswd");
 
-            PageFactory.InitElements(Global.GlobalDefinitions.driver, this);
+            PageFactory.InitElements(driver, this);
         }
+
 
         #region  Initialize Web Elements
         private string firstname;
@@ -25,6 +29,8 @@ namespace MarsFramework.Pages
         private string email;
         private string password;
         private string confirmpassword;
+        private IWebDriver driver;
+
         //Finding the Join 
         [FindsBy(How = How.XPath, Using = "//*[@id='home']/div/div/div[1]/div/button")]
         private IWebElement Join { get; set; }

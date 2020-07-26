@@ -1,20 +1,24 @@
 ﻿using OpenQA.Selenium;
 using AutoItX3Lib;
-using MarsFramework.Global;
+using MarsFramework.Base;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Threading;
 using System.IO;
 using SeleniumExtras.PageObjects;
+using MarsFramework.Helper;
 
 namespace MarsFramework.Pages
 {
     internal class ShareSkill
     {
-        public ShareSkill()
+        private IWebDriver driver;
+
+        public ShareSkill(IWebDriver driver)
         {
-            PageFactory.InitElements(Global.GlobalDefinitions.driver, this);
-            GlobalDefinitions.ExcelLib.PopulateInCollection(Base.ExcelPath, "ShareSkill");
+            this.driver = driver;
+            PageFactory.InitElements(driver, this);
+            GlobalDefinitions.ExcelLib.PopulateInCollection(paths.ExcelPath, "ShareSkill");
         }
 
         #region Initialize WebElement
@@ -152,7 +156,7 @@ namespace MarsFramework.Pages
 
         internal string ReadPopup()
         { 
-            string message = GlobalDefinitions.driver.FindElement(By.XPath("//div[contains(@class,'ns-box-inner')]")).Text;
+            string message = driver.FindElement(By.XPath("//div[contains(@class,'ns-box-inner')]")).Text;
 
             return message;
         }
@@ -205,10 +209,10 @@ namespace MarsFramework.Pages
             for (int i = 0; i <= 6; i++)
             {
 
-                var day = GlobalDefinitions.driver.FindElement(By.CssSelector("input[name='Available'][index='"+i+"']"));
-                var starttime = GlobalDefinitions.driver.FindElement(By.CssSelector("input[name='StartTime'][index='"+i+"']"));
-                var endtime = GlobalDefinitions.driver.FindElement(By.CssSelector("input[name='EndTime'][index='"+i+"']"));
-                var Label = GlobalDefinitions.driver.FindElement(By.XPath("//div[@class='fields']["+(2+i)+"]/div/div//label"));
+                var day =driver.FindElement(By.CssSelector("input[name='Available'][index='"+i+"']"));
+                var starttime =driver.FindElement(By.CssSelector("input[name='StartTime'][index='"+i+"']"));
+                var endtime =driver.FindElement(By.CssSelector("input[name='EndTime'][index='"+i+"']"));
+                var Label =driver.FindElement(By.XPath("//div[@class='fields']["+(2+i)+"]/div/div//label"));
                 
                 if (GlobalDefinitions.ExcelLib.ReadData(2, "Selectday") == Label.Text)
                 {
